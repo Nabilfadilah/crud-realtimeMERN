@@ -2,6 +2,7 @@ import { useState } from "react";
 import "./App.css";
 import { Routes, Router, BrowserRouter, Route } from "react-router-dom";
 import ProductList from "./components/ProductList";
+import AddProduct from "./components/AddProduct";
 
 function App() {
   return (
@@ -9,6 +10,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<ProductList />} />
+          <Route path="/add" element={<AddProduct />} />
         </Routes>
       </BrowserRouter>
     </div>

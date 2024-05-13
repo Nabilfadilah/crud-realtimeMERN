@@ -1,7 +1,26 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import axios from "axios";
+import useSWR, { useSWRConfig } from "swr";
 
 const ProductList = () => {
+  const { mutate } = useSWRConfig();
+
+  // fetching data
+  const fetcher = async () => {
+    const response = await axios.get("http://localhost:5000/products");
+    return response.data;
+  };
+
+  const { data } = useSWR("products", fetcher);
+  if (!data) return <h2>Loading....</h2>;
+
+  // delete
+  const deleteProduct = async (productId) => {
+    await axios.delete(`http://localhost:5000/products/${productId}`);
+    mutate("products");
+  };
+
   return (
     <div className="flex flex-col mt-5">
       <div className="w-full">
@@ -22,22 +41,29 @@ const ProductList = () => {
               </tr>
             </thead>
             <tbody>
-              <tr className="bg-white border-b">
-                <td className="py-3 px-1 font-medium text-center">1</td>
-                <td className="py-3 px-6">Product 1</td>
-                <td className="py-3 px-6">3000</td>
-                <td className="py-3 px-1 text-center">
-                  <Link
-                    to={`/edit/`}
-                    className="font-medium bg-blue-400 hover:bg-blue-500 px-3 py-1 rounded text-white mr-1"
-                  >
-                    Edit
-                  </Link>
-                  <button className="font-medium bg-red-400 hover:bg-red-500 px-3 py-1 rounded text-white">
-                    Delete
-                  </button>
-                </td>
-              </tr>
+              {data.map((product, index) => (
+                <tr className="bg-white border-b" key={product.id}>
+                  <td className="py-3 px-1 font-medium text-center">
+                    {index + 1}
+                  </td>
+                  <td className="py-3 px-6">{product.name}</td>
+                  <td className="py-3 px-6">{product.price}</td>
+                  <td className="py-3 px-1 text-center">
+                    <Link
+                      to={`/edit/${product.id}`}
+                      className="font-medium bg-blue-400 hover:bg-blue-500 px-3 py-1 rounded text-white mr-1"
+                    >
+                      Edit
+                    </Link>
+                    <button
+                      onClick={() => deleteProduct(product.id)}
+                      className="font-medium bg-red-400 hover:bg-red-500 px-3 py-1 rounded text-white"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
